@@ -1,0 +1,38 @@
+extends ../layout
+
+block content
+	div.container
+		div.row
+			div.col-md-12
+
+				h1.page-header Bancos
+
+				div(class='alert alert-{{ alert.type }}') {{ alert.msg }}
+
+				div.navbar
+					a(href='/banks/new', class='navbar-btn navbar-left btn btn-success') Novo
+					form.navbar-form.navbar-left
+						div.form-group
+							input(type="text", data-ng-model="query", class='form-control', placeholder='Busca')
+
+				table.table
+					thead
+						tr
+							th Banco
+							th Endereço
+							th Cidade
+							th Estado
+							th País
+							th Lat. Lng.
+
+					tbody
+						tr(data-ng-repeat="bank in banks | filter: query")
+							td
+								a(href="/banks/{{bank._id}}") {{ bank.name }}
+							td {{ bank.address }}
+							td {{ bank.city }}
+							td {{ bank.estate }}
+							td {{ bank.country }}
+							td {{ bank.lat }}, {{ bank.lng }}
+
+

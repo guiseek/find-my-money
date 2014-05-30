@@ -1,0 +1,41 @@
+extends ../layout
+
+block content
+  div.container
+    div.row
+      div.col-md-12
+
+        h1.page-header Alterar banco
+
+        div(class='alert alert-{{ alert.type }}') {{ alert.msg }}
+
+        form(method="post")
+          div.row
+            div.col-md-6
+              div.form-group
+                label Name:
+                input(type="text", class='form-control', name="name", data-ng-model='form.name')
+              div.form-group
+                label Description:
+                input(type="text", class='form-control', name="description", data-ng-model='form.description')
+              div.form-group
+                label Address:
+                input(type="text", class='form-control', name="address", data-ng-model='form.address')
+              div.form-group
+                label City:
+                input(type="text", class='form-control', name="city", data-ng-model='form.city')
+            div.col-md-6
+              div.form-group
+                label Estate:
+                input(type="text", class='form-control', name="estate", data-ng-model='form.estate')
+              div.form-group
+                label Country:
+                input(type="text", class='form-control', name="country", data-ng-model='form.country')
+              div.form-group
+                label Lat:
+                input(type="number", class='form-control', name="lat", data-ng-model='form.lat')
+              div.form-group
+                label Lng:
+                input(type="number", class='form-control', name="lng", data-ng-model='form.lng')
+          button(data-ng-click='save(form)', class='btn btn-success') Cadastrar
+          button(data-ng-click='delete()', class='btn btn-danger') Apagar

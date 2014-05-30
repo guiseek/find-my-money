@@ -1,0 +1,22 @@
+extends ../layouts/layout
+
+block content
+  h1= bank.name
+
+  ul
+    li <strong>Name:</strong> #{bank.name}
+    li <strong>Description:</strong> #{bank.description}
+    li <strong>Address:</strong> #{bank.address}
+    li <strong>City:</strong> #{bank.city}
+    li <strong>Estate:</strong> #{bank.estate}
+    li <strong>Country:</strong> #{bank.country}
+    li <strong>Lat:</strong> #{bank.lat}
+    li <strong>Lng:</strong> #{bank.lng}
+
+  ul.links
+    li
+      a(href="/banks/#{bank.id}/edit/") Editar
+    li
+      a(href="/banks/#{bank.id}/delete") Deletar
+
+  a(href="/banks") Voltar

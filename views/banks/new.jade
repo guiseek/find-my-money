@@ -1,0 +1,43 @@
+extends ../layout
+
+block content
+	div.container
+		div.row
+			div.col-md-12
+
+				h1.page-header Novo banco
+
+				div(class='alert alert-{{ alert.type }}') {{ alert.msg }}
+
+				form(method="post")
+					div.row
+						div.col-md-6
+							div.form-group
+								label Name:
+								input(type="text", class='form-control', name="name", data-ng-model='form.name')
+							div.form-group
+								label Description:
+								input(type="text", class='form-control', name="description", data-ng-model='form.description')
+							div.form-group
+								label Address:
+								input(type="text", class='form-control', name="address", data-ng-model='form.address')
+							div.form-group
+								label City:
+								select.form-control(data-ng-model='form.city')
+									option(value='Maringá') Maringá
+						div.col-md-6
+							div.form-group
+								label Estate:
+								select.form-control(data-ng-model='form.estate')
+									option(value='Paraná') Paraná
+							div.form-group
+								label Country:
+								input(type="text", class='form-control', name="country", data-ng-model='form.country')
+							div.form-group
+								label Lat:
+								input(type="number", class='form-control', name="lat", data-ng-model='form.lat')
+							div.form-group
+								label Lng:
+								input(type="number", class='form-control', name="lng", data-ng-model='form.lng')
+					button(data-ng-click='create(form)', class='btn btn-success') Cadastrar
+					div {{ form }}

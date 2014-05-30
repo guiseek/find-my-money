@@ -1,0 +1,37 @@
+extends layout
+
+block content
+  div.page-container
+    div.navbar.navbar-default.navbar-fixed-top(role='navigation')
+      div.container
+        div.navbar-header
+          button.navbar-toggle(type='button',data-toggle='offcanvas',data-target='.sidebar-nav')
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.navbar-brand(href='/') {{ name }}
+        div.navbar-collapse.collapse
+          ul.nav.navbar-nav
+            li
+              a(href='banks') Lista
+            li
+              a(href='banks/new') Novo
+            li
+              a(href='map') Mapa
+
+    div(ng-view)
+
+  script(src='/bower_components/jquery/dist/jquery.min.js')
+  script(src='/bower_components/bootstrap/dist/js/bootstrap.min.js')
+  script(src='/js/offcanvas.js')
+
+  script(src='/lib/angular/angular.js')
+  script(src='/lib/angular/angular-resource.js')
+  script(src='/app/app.js')
+  script(src='/app/services.js')
+  script(src='/app/controllers.js')
+  script(src='/app/filters.js')
+  script(src='/app/directives.js')
+  script(src='//maps.googleapis.com/maps/api/js?sensor=false')
+  script(src='/bower_components/lodash/dist/lodash.underscore.min.js')
+  script(src='/bower_components/angular-google-maps/dist/angular-google-maps.min.js')

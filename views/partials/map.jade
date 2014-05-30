@@ -1,0 +1,29 @@
+div.container.container-map
+	div.row.row-offcanvas.row-offcanvas-right
+		// map area
+		div.col-xs-12.col-sm-9.map
+			google-map(center='map.center', zoom='map.zoom', draggable='true')
+				marker(ng-repeat='m in map.markers', coords='m', icon='m.icon', click='onMarkerClicked(m)')
+					marker-label(content='m.title', anchor='22 0')
+
+		// sidebar
+		div.col-xs-6.col-sm-3.sidebar-offcanvas#sidebar(role='navigation')
+			div.panel
+				div.panel-heading
+					div.input-group
+						span.input-group-addon
+							span.glyphicon.glyphicon-search
+						input(type="text", data-ng-model="city", class='form-control', placeholder='Busca', x-webkit-speech)
+				div.panel-body
+					div.navbar
+						button.btn.btn-success(data-ng-click='setLocation()') Meu local
+					div.list-group
+						a.list-group-item(
+							data-ng-repeat='bank in banks | filter: city',
+							data-ng-click='center({latitude: bank.lat, longitude: bank.lng})'
+							href='/map'
+						) {{ bank.name }}
+
+					p {{ (banks | filter: city).length }} bancos encontrados	
+
+
