@@ -3,8 +3,9 @@ div.container.container-map
 		// map area
 		div.col-xs-12.col-sm-9.map
 			google-map(center='map.center', zoom='map.zoom', draggable='true')
-				marker(ng-repeat='m in map.markers', coords='m', icon='m.icon', click='onMarkerClicked(m)')
-					marker-label(content='m.title', anchor='22 0')
+				//marker(ng-repeat='m in map.markers', coords='m', icon='m.icon', click='onMarkerClicked(m)')
+					//marker-label(content='m.title', anchor='22 0')
+				//window(ng-repeat='w in map.windows', coords='w.coords')
 
 		// sidebar
 		div.col-xs-6.col-sm-3.sidebar-offcanvas#sidebar(role='navigation')

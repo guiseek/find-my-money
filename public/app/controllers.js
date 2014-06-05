@@ -30,7 +30,7 @@ angular.module('myApp.controllers', []).
 				latitude: 0,
 				longitude: 0
 			},
-			zoom: 14
+			zoom: 16,
 		};
 
 		// Banks
@@ -44,14 +44,24 @@ angular.module('myApp.controllers', []).
     	console.log('SUCESSO', data);
     	$scope.banks = data;
       $scope.map.markers = [];
+      $scope.map.windows = [];
       data.forEach(function(bank) {
         $scope.map.markers.push(
           {
             id: bank._id,
             latitude: bank.lat,
             longitude: bank.lng,
-            showWindow: true,
+            show: true,
             title: bank.name
+          }
+        );
+        $scope.map.windows.push(
+          {
+            coords: {
+              latitude: bank.lat,
+              longitude: bank.lng
+            },
+            show: true
           }
         );
       });
@@ -116,11 +126,39 @@ angular.module('myApp.controllers', []).
   controller('BankNewController', ['$scope', '$http', function ($scope, $http) {
 
     if (navigator.geolocation) {
+      //$http.defaults.useXdomain = true;
+      delete $http.defaults.headers.common['X-Requested-With'];
+
       navigator.geolocation.getCurrentPosition(function(gp) {
         var lat = gp.coords.latitude;
         var lng = gp.coords.longitude;
+        var url = 'http://maps.googleapis.com/maps/api/geocode/json?latlng='+lat+','+lng+'&sensor=false';
 
-        jQuery.get('http://maps.googleapis.com/maps/api/geocode/json?latlng='+lat+','+lng+'&sensor=false').success(function(data) {
+        $http.get(url).
+        success(function(data){
+          console.log(data.results);
+          if (data.status == 'OK') {
+            var results = data.results[0];
+            var address = {lat: lat, lng: lng};
+            [].forEach.call(results.address_components, function(el) {
+              switch(el.types[0]) {
+                case 'route': address.address = el.long_name; break;
+                case 'neighborhood': address.description = el.long_name; break;
+                case 'locality': address.city = el.long_name; break;
+                case 'administrative_area_level_1': address.estate = el.long_name; break;
+                case 'country': address.country = el.long_name; break;
+              }
+            });
+            $scope.form = address;
+            console.log(address);
+          }
+        }).
+        error(function(data){
+          console.log(data);
+        });
+          
+        /*
+        jQuery.get(url).success(function(data) {
           var address_components = data.results[0].address_components;
           console.log(address_components);
           var address = {
@@ -132,9 +170,12 @@ angular.module('myApp.controllers', []).
             lat: lat,
             lng: lng
           };
-          console.log(address);
-          $scope.form = address;
+          $scope.$apply(function(){
+            $scope.form = address;
+          });
         });
+        */
+
       });
     }
 
