@@ -17,7 +17,7 @@ angular.module('myApp.controllers', []).
     });
 
   }).
-  controller('MapController', ['$scope', '$http', 'Bank', function ($scope, $http, Bank) {
+  controller('MapController', ['$scope', '$http', 'Bank', 'socket', function ($scope, $http, Bank, socket) {
     console.log('Map Controller');
 
     $scope.offcanvas = function() {
@@ -71,12 +71,6 @@ angular.module('myApp.controllers', []).
     	console.log('ERRO', data);
     });
 
-
-
-
-		//$scope.map.center.latitude = -23.420999;
-		//$scope.map.center.longitude = -51.933056;
-
 		// Functions
 		$scope.center = function(center) {
 			console.log(center);
@@ -95,6 +89,12 @@ angular.module('myApp.controllers', []).
     $scope.setLocation = function() {
     	$scope.center($scope.latlng)
     }
+
+    // events
+    socket.on('send:newBank', function (data) {
+      console.log(data);
+      $scope.banks.push(data.bank);
+    });
 
   }]).
   controller('BankIndexController', ['$scope', '$http', function ($scope, $http) {
@@ -123,7 +123,7 @@ angular.module('myApp.controllers', []).
     });
 
   }]).
-  controller('BankNewController', ['$scope', '$http', function ($scope, $http) {
+  controller('BankNewController', ['$scope', '$http', 'socket', function ($scope, $http, socket) {
 
     if (navigator.geolocation) {
       //$http.defaults.useXdomain = true;
@@ -156,25 +156,7 @@ angular.module('myApp.controllers', []).
         error(function(data){
           console.log(data);
         });
-          
-        /*
-        jQuery.get(url).success(function(data) {
-          var address_components = data.results[0].address_components;
-          console.log(address_components);
-          var address = {
-            address: address_components[1].long_name,
-            description: address_components[2].long_name,
-            city: address_components[3].long_name,
-            estate: address_components[4].long_name,
-            country: address_components[5].long_name,
-            lat: lat,
-            lng: lng
-          };
-          $scope.$apply(function(){
-            $scope.form = address;
-          });
-        });
-        */
+
 
       });
     }
@@ -194,6 +176,9 @@ angular.module('myApp.controllers', []).
         data: dados
       }).
       success(function(data){
+        socket.emit('send:newBank', {
+          bank: data
+        });
         $scope.alert = {
           type: 'success',
           msg: 'Banco cadastrado'

@@ -11,7 +11,8 @@ var express = require('express'),
   path = require('path');
 
 var app = module.exports = express();
-
+var server = http.createServer(app);
+var io = require('socket.io').listen(server);
 
 /**
  * Configuration
@@ -60,9 +61,14 @@ app.delete('/api/banks/:id', bank.delete);
 // redirect all others to the index (HTML5 history)
 app.get('*', routes.index);
 
+// Socket.io Communication
+io.sockets.on('connection', require('./routes/socket'));
+
 /**
  * Start Server
  */
-http.createServer(app).listen(app.get('port'), function () {
+
+server.listen(app.get('port'), function () {
   console.log('Express server listening on port ' + app.get('port'));
 });
+
