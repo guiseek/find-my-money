@@ -24,6 +24,9 @@ block content
 							th Estado
 							th País
 							th Lat. Lng.
+							th Caixa Eletrônico
+							th Criado em
+							th Ações
 
 					tbody
 						tr(data-ng-repeat="bank in banks | filter: query")
@@ -34,5 +37,9 @@ block content
 							td {{ bank.estate }}
 							td {{ bank.country }}
 							td {{ bank.lat }}, {{ bank.lng }}
+							td {{ bank.cashMachine }}
+							td {{ bank.created }}
+							td
+								a.btn.btn-danger(ng-click="delete(bank)") Apagar
 
 

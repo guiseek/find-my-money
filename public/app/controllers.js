@@ -3,7 +3,11 @@
 /* Controllers */
 
 angular.module('myApp.controllers', []).
-  controller('AppCtrl', function ($scope, $http) {
+  controller('AppCtrl', function ($scope, $http, $location) {
+
+    $scope.active = function(route) {
+      return route === $location.path();
+    }
 
     $http({
       method: 'GET',
@@ -17,12 +21,9 @@ angular.module('myApp.controllers', []).
     });
 
   }).
-  controller('MapController', ['$scope', '$http', 'Bank', 'socket', function ($scope, $http, Bank, socket) {
+  controller('MapController', ['$scope', '$http', '$location', 'Bank', 'socket', 
+    function ($scope, $http, $location, Bank, socket) {
     console.log('Map Controller');
-
-    $scope.offcanvas = function() {
-    	$('.row-offcanvas').toggleClass('active');
-    }
 
     // Map
 		$scope.map = {
@@ -61,7 +62,8 @@ angular.module('myApp.controllers', []).
               latitude: bank.lat,
               longitude: bank.lng
             },
-            show: true
+            showWindow: false,
+            title: 'Marker 2'
           }
         );
       });
@@ -70,6 +72,22 @@ angular.module('myApp.controllers', []).
     error(function(data) {
     	console.log('ERRO', data);
     });
+
+    google.maps.visualRefresh = true;
+    var onMarkerClicked = function (marker) {
+      marker.showWindow = true;
+      $scope.$apply();
+    };
+    _.each($scope.map.markers, function (marker) {
+      marker.closeClick = function () {
+        marker.showWindow = false;
+        $scope.$apply();
+      };
+      marker.onClicked = function () {
+        onMarkerClicked(marker);
+      };
+    });
+    $scope.onMarkerClicked = onMarkerClicked;
 
 		// Functions
 		$scope.center = function(center) {
@@ -81,7 +99,7 @@ angular.module('myApp.controllers', []).
     		navigator.geolocation.getCurrentPosition(function(gp) {
     			var lat = gp.coords.latitude;
     			var lng = gp.coords.longitude;
-    			$scope.latlng = {latitude: lat, longitude: lng};
+          $scope.center({latitude: lat, longitude: lng});
     		});
     	}
     }
@@ -91,13 +109,21 @@ angular.module('myApp.controllers', []).
     }
 
     // events
-    socket.on('send:newBank', function (data) {
+    socket.on('post bank', function (data) {
       console.log(data);
       $scope.banks.push(data.bank);
     });
+    socket.on('update bank', function (data) {
+      console.log(data);
+    });
+    socket.on('delete bank', function (data) {
+      console.log(data);
+      var index = $scope.banks.indexOf(data.bank);
+      $scope.banks.splice(index,1);
+    });
 
   }]).
-  controller('BankIndexController', ['$scope', '$http', function ($scope, $http) {
+  controller('BankIndexController', ['$scope', '$http', 'socket', function ($scope, $http, socket) {
     var url = '/api/banks';
 
     console.log('Bank Index');
@@ -121,10 +147,35 @@ angular.module('myApp.controllers', []).
         msg: 'Erro ao listar'
       };
     });
+    socket.on('delete bank', function (data) {
+      console.log(data.bank);
+    });
+
+    $scope.delete = function(bank){
+      $http({
+        method: 'DELETE',
+        url: url + '/' + bank._id
+      }).
+      success(function(data){
+        //console.log(data);
+        socket.emit('delete bank', {
+          bank: 'asd'
+        });
+        $scope.alert = {
+          type: 'success',
+          msg: 'Banco apagado'
+        };
+      }).
+      error(function(data){
+        $scope.alert = {
+          type: 'danger',
+          msg: 'Banco não apagado'
+        };
+      });
+    }
 
   }]).
   controller('BankNewController', ['$scope', '$http', 'socket', function ($scope, $http, socket) {
-
     if (navigator.geolocation) {
       //$http.defaults.useXdomain = true;
       delete $http.defaults.headers.common['X-Requested-With'];
@@ -176,7 +227,7 @@ angular.module('myApp.controllers', []).
         data: dados
       }).
       success(function(data){
-        socket.emit('send:newBank', {
+        socket.emit('post bank', {
           bank: data
         });
         $scope.alert = {
@@ -193,7 +244,7 @@ angular.module('myApp.controllers', []).
 
     }
   }]).
-  controller('BankUpdateController', ['$scope', '$http', '$routeParams', 'Bank', function ($scope, $http, $routeParams, Bank) {
+  controller('BankUpdateController', ['$scope', '$http', '$routeParams', 'Bank', 'socket', function ($scope, $http, $routeParams, Bank, socket) {
 
     $scope.alert = {
       type: 'info',
@@ -248,6 +299,10 @@ angular.module('myApp.controllers', []).
         data: dados
       }).
       success(function(data){
+        console.log(data);
+        socket.emit('update bank', {
+          bank: data
+        });
         $scope.alert = {
           type: 'success',
           msg: 'Banco alterado'
@@ -269,6 +324,10 @@ angular.module('myApp.controllers', []).
         url: url
       }).
       success(function(data){
+        console.log(data);
+        socket.emit('delete bank', {
+          bank: data
+        });
         $scope.alert = {
           type: 'success',
           msg: 'Banco apagado'

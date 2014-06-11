@@ -16,6 +16,10 @@ block content
 								label Name:
 								input(type="text", class='form-control', name="name", data-ng-model='form.name')
 							div.form-group
+								label
+									input(type="checkbox", name="cashMachine", data-ng-model='form.cashMachine')
+									a Caixa eletrônico
+							div.form-group
 								label Description:
 								input(type="text", class='form-control', name="description", data-ng-model='form.description')
 							div.form-group
@@ -35,9 +39,9 @@ block content
 								input(type="text", class='form-control', name="country", data-ng-model='form.country')
 							div.form-group
 								label Lat:
-								input(type="number", class='form-control', name="lat", data-ng-model='form.lat')
+								input(type="text", class='form-control', name="lat", data-ng-model='form.lat')
 							div.form-group
 								label Lng:
-								input(type="number", class='form-control', name="lng", data-ng-model='form.lng')
+								input(type="text", class='form-control', name="lng", data-ng-model='form.lng')
 					button(data-ng-click='create(form)', class='btn btn-success') Cadastrar
 					div {{ form }}

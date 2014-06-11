@@ -3,7 +3,7 @@ div.container.container-map
 		// map area
 		div.col-xs-12.col-sm-9.map
 			google-map(center='map.center', zoom='map.zoom', draggable='true')
-				//marker(ng-repeat='m in map.markers', coords='m', icon='m.icon', click='onMarkerClicked(m)')
+				marker(ng-repeat='m in map.markers', coords='m', icon='m.icon', ng-click='m.showWindow = true', click='onMarkerClicked(m)')
 					//marker-label(content='m.title', anchor='22 0')
 				//window(ng-repeat='w in map.windows', coords='w.coords')
 
@@ -17,7 +17,7 @@ div.container.container-map
 						input(type="text", data-ng-model="city", class='form-control', placeholder='Busca', x-webkit-speech)
 				div.panel-body
 					div.navbar
-						button.btn.btn-success(data-ng-click='setLocation()') Meu local
+						a(href='/banks/new', class='navbar-btn btn btn-success pull-right') Ḿarcar banco
 					div.list-group
 						a.list-group-item(
 							data-ng-repeat='bank in banks | filter: city',

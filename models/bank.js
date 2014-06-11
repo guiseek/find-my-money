@@ -20,6 +20,7 @@ var BankSchema = new Schema({
   country: { type: String, default: '' },
   lat: { type: Number },
   lng: { type: Number },
+  cashMachine: { type: Boolean },
   created: { type: Date, default: Date.now }
 });
 

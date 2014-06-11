@@ -12,14 +12,14 @@ block content
           a.navbar-brand(href='/') {{ name }}
         div.navbar-collapse.collapse
           ul.nav.navbar-nav
-            li
+            li(ng-class="{active:active('/banks')}")
               a(href='banks') Lista
-            li
+            li(ng-class="{active:active('/banks/new')}")
               a(href='banks/new') Novo
-            li
+            li(ng-class="{active:active('/map')}")
               a(href='map') Mapa
 
-    div(ng-view)
+    div(ng-view)        
 
   script(src='/bower_components/jquery/dist/jquery.min.js')
   script(src='/bower_components/bootstrap/dist/js/bootstrap.min.js')
