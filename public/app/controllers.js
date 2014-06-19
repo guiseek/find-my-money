@@ -24,15 +24,39 @@ angular.module('myApp.controllers', []).
   controller('MapController', ['$scope', '$http', '$location', 'Bank', 'socket', 
     function ($scope, $http, $location, Bank, socket) {
     console.log('Map Controller');
-
-    // Map
-		$scope.map = {
-			center: {
-				latitude: 0,
-				longitude: 0
-			},
-			zoom: 16,
-		};
+    $scope.selectBanks = [
+      {text: 'Banco do Brasil', value: 'banco-do-brasil'},
+      {text: 'Itaú', value: 'itau'},
+      {text: 'Bradesco', value: 'bradesco'},
+      {text: 'Santander', value: 'santander'},
+      {text: 'Safra', value: 'safra'}
+    ];
+    angular.extend($scope, {
+      map: {
+        center: {
+          latitude: 0,
+          longitude: 0
+        },
+        zoom: 16,
+        clickedMarker: {},
+        events: {
+          click: function (mapModel, eventName, originalEventArgs) {
+            var e = originalEventArgs[0];
+            var marker = {
+              latitude: e.latLng.lat(),
+              longitude: e.latLng.lng()
+            }
+            $scope.map.clickedMarker = marker;
+            $scope.$apply();
+            $('#myModal').modal('show');
+            $('#myModal').on('hidden.bs.modal', function (e) {
+              $scope.map.clickedMarker = null;
+              $scope.$apply();
+            });
+          }
+        }
+      }
+    });
 
 		// Banks
 		//var banks = Bank.query();
@@ -45,29 +69,20 @@ angular.module('myApp.controllers', []).
     	console.log('SUCESSO', data);
     	$scope.banks = data;
       $scope.map.markers = [];
-      $scope.map.windows = [];
       data.forEach(function(bank) {
         $scope.map.markers.push(
           {
             id: bank._id,
-            latitude: bank.lat,
-            longitude: bank.lng,
-            show: true,
-            title: bank.name
-          }
-        );
-        $scope.map.windows.push(
-          {
+            icon: '/icon/bb.png',
+            address: bank.address,
+            cashMachine: bank.cashMachine,
             coords: {
               latitude: bank.lat,
               longitude: bank.lng
             },
-            showWindow: false,
-            title: 'Marker 2'
           }
         );
       });
-      console.log($scope.map.markers);
     }).
     error(function(data) {
     	console.log('ERRO', data);

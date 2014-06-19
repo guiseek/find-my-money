@@ -41,7 +41,7 @@ config(function ($routeProvider, $locationProvider) {
       controller: 'MyCtrl2'
     }).
     otherwise({
-      redirectTo: '/view1'
+      redirectTo: '/map'
     });
 
   $locationProvider.html5Mode(true);
