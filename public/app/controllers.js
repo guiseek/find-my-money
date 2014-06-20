@@ -9,6 +9,40 @@ angular.module('myApp.controllers', []).
       return route === $location.path();
     }
 
+    $scope.geolocation = function(success, error) {
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            success(position);
+          },
+          function(e) {
+            var message;
+            switch(e.code) {
+              case 1: message = 'Permissão negada'; break;
+              case 2: message = 'Posição indisponível'; break;
+              case 3: message = 'Tempo expirado'; break;
+              default: message = 'Erro desconhecido';
+            }
+            error(message);
+          }
+        );
+      }
+      else {
+        error('Não disponível');
+      }
+    }
+    $scope.geolocation(
+      function(position){
+        $scope.glPosition = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+      },
+      function(message){
+        $scope.glError = message;
+      }
+    );
+
     $http({
       method: 'GET',
       url: '/api/name'
@@ -23,14 +57,17 @@ angular.module('myApp.controllers', []).
   }).
   controller('MapController', ['$scope', '$http', '$location', 'Bank', 'socket', 
     function ($scope, $http, $location, Bank, socket) {
+
     console.log('Map Controller');
-    $scope.selectBanks = [
-      {text: 'Banco do Brasil', value: 'banco-do-brasil'},
-      {text: 'Itaú', value: 'itau'},
-      {text: 'Bradesco', value: 'bradesco'},
-      {text: 'Santander', value: 'santander'},
-      {text: 'Safra', value: 'safra'}
+
+    $scope.formBanks = [
+      {name: 'Banco do Brasil'},
+      {name: 'Itaú'},
+      {name: 'Bradesco'},
+      {name: 'Santander'},
+      {name: 'Safra'}
     ];
+
     angular.extend($scope, {
       map: {
         center: {
@@ -41,18 +78,23 @@ angular.module('myApp.controllers', []).
         clickedMarker: {},
         events: {
           click: function (mapModel, eventName, originalEventArgs) {
-            var e = originalEventArgs[0];
-            var marker = {
-              latitude: e.latLng.lat(),
-              longitude: e.latLng.lng()
+            if ($scope.glError) {
+              $('#glError').modal('show');
             }
-            $scope.map.clickedMarker = marker;
-            $scope.$apply();
-            $('#myModal').modal('show');
-            $('#myModal').on('hidden.bs.modal', function (e) {
-              $scope.map.clickedMarker = null;
+            else {
+              var e = originalEventArgs[0];
+              var marker = {
+                latitude: e.latLng.lat(),
+                longitude: e.latLng.lng()
+              }
+              $scope.map.clickedMarker = marker;
               $scope.$apply();
-            });
+              $('#myModal').modal('show');
+              $('#myModal').on('hidden.bs.modal', function (e) {
+                $scope.map.clickedMarker = null;
+                $scope.$apply();
+              });
+            }
           }
         }
       }
@@ -93,16 +135,6 @@ angular.module('myApp.controllers', []).
       marker.showWindow = true;
       $scope.$apply();
     };
-    _.each($scope.map.markers, function (marker) {
-      marker.closeClick = function () {
-        marker.showWindow = false;
-        $scope.$apply();
-      };
-      marker.onClicked = function () {
-        onMarkerClicked(marker);
-      };
-    });
-    $scope.onMarkerClicked = onMarkerClicked;
 
 		// Functions
 		$scope.center = function(center) {

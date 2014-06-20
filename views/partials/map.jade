@@ -1,3 +1,40 @@
+// modals
+div.modal.fade#myModal
+	div.modal-dialog
+		div.modal-content
+			div.modal-header
+				button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+				h4.modal-title Novo banco
+			div.modal-body
+				form(method='post')
+					div.row
+						div.col-xs-12
+							div.form-group
+								label Banco:
+								select.form-control(data-ng-model='form.name', ng-options='formBank.name for formBank in formBanks')
+							div.checkbox
+								label
+									input(type='checkbox', data-ng-model='form.cashMachine')
+									| Caixa eletrônico
+							div.form-group
+								label Descrição:
+								textarea.form-control(data-ng-model='form.description')
+
+			div.modal-footer
+				button.btn.btn-default(type='button', data-dismiss='modal') Cancelar
+				button.btn.btn-success(type='button') Salvar
+
+div.modal.fade#glError
+	div.modal-dialog
+		div.modal-content
+			div.modal-header
+				button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+				h4.modal-title Localização
+			div.modal-body
+				{{ glError }}
+			div.modal-footer
+				button.btn.btn-default(type='button', data-dismiss='modal') Cancelar
+
 div.container.container-map
 	div.row.row-offcanvas.row-offcanvas-right
 		// map area
@@ -13,25 +50,6 @@ div.container.container-map
 
 				div(ng-init='opts = {animation:1}')
 					marker(coords='map.clickedMarker', options='opts')
-
-		// modal
-		div.modal.fade#myModal
-			div.modal-dialog
-				div.modal-content
-					div.modal-header
-						button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
-						h4.modal-title Novo banco
-					div.modal-body
-						form(method='post')
-							div.row
-								div.col-xs-12
-									div.form-group
-										label Banco:
-										select(ng-model='newBank', ng-options='selectBank.value as selectBank.text for selectBank in selectBanks')
-
-					div.modal-footer
-						button.btn.btn-default(type='button', data-dismiss='modal') Cancelar
-						button.btn.btn-primary(type='button') Salvar
 
 		// sidebar
 		div.col-xs-6.col-sm-3.sidebar-offcanvas#sidebar(role='navigation')
