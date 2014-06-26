@@ -1,5 +1,5 @@
 // modals
-div.modal.fade#myModal
+div.modal.fade#modal-marker
 	div.modal-dialog
 		div.modal-content
 			div.modal-header
@@ -19,21 +19,12 @@ div.modal.fade#myModal
 							div.form-group
 								label Descrição:
 								textarea.form-control(data-ng-model='form.description')
+							input(type='hidden', ng-data-model='form.lat')
+							input(type='hidden', ng-data-model='form.lng')
 
 			div.modal-footer
 				button.btn.btn-default(type='button', data-dismiss='modal') Cancelar
-				button.btn.btn-success(type='button') Salvar
-
-div.modal.fade#glError
-	div.modal-dialog
-		div.modal-content
-			div.modal-header
-				button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
-				h4.modal-title Localização
-			div.modal-body
-				{{ glError }}
-			div.modal-footer
-				button.btn.btn-default(type='button', data-dismiss='modal') Cancelar
+				button.btn.btn-success(type='button', data-ng-click='create(form)') Salvar
 
 div.container.container-map
 	div.row.row-offcanvas.row-offcanvas-right
@@ -46,7 +37,7 @@ div.container.container-map
 							{{ m.address }}
 							p(ng-if='m.cashMachine')
 								span.glyphicon.glyphicon-ok
-								span  Caixa eletrônico
+								| Caixa eletrônico
 
 				div(ng-init='opts = {animation:1}')
 					marker(coords='map.clickedMarker', options='opts')
@@ -61,11 +52,11 @@ div.container.container-map
 						input(type="text", data-ng-model="city", class='form-control', placeholder='Busca', x-webkit-speech)
 				div.panel-body
 					div.navbar
-						a(href='/banks/new', class='navbar-btn btn btn-success pull-right') Ḿarcar banco
+						a(href='/banks/new', class='navbar-btn btn btn-success') Ḿarcar banco
 					div.list-group
 						a.list-group-item(
 							data-ng-repeat='bank in banks | filter: city',
-							data-ng-click='center({latitude: bank.lat, longitude: bank.lng})'
+							data-ng-click='setCenter({latitude: bank.lat, longitude: bank.lng})'
 							href='/map'
 						) {{ bank.name }}
 

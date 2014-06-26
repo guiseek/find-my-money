@@ -28,14 +28,36 @@ angular.module('myApp.services', ['ngResource']).
       }
     };
   }).
-	factory('Bank', ['$resource',
-  	function($resource){
-    	return $resource('/api/banks/:id', {id: '@id'}, {
-    		get: {method: 'GET'},
-    		save: {method: 'POST'},
-    		update: {method: 'PUT'},
-      	query: {method:'GET', isArray:true},
-      	remove: {method: 'DELETE'}
-	    });
+  /*
+	factory('Bank', ['$resource', '$q',
+  	function($resource, $q) {
+    	var banks = $resource('/api/banks/:id', {id: '@id'});
+      var factory = {
+        query: function() {
+          var deferred = $q.defer();
+          deferred.resolve(banks);
+          return deferred.promise;
+        }
+      }
+      return factory;
   	}
+  ]);
+  */
+  factory('Bank', ['$resource', '$q',
+    function($resource, $q) {
+      return $resource('/api/banks/:id', {id: '@id'}, {
+        query: {method: 'GET', isArray: true},
+        get: {method: 'GET'},
+        save: {method: 'POST'},
+        update: {method: 'PUT'},
+        delete: {method: 'DELETE'}
+      });
+    }
+  ]).
+  factory('APIMap', ['$resource',
+    function($resource) {
+      return $resource('http://maps.googleapis.com/maps/api/geocode/json', {latlng: '@latlng'}, {
+        query: {method: 'GET'}
+      });
+    }
   ]);

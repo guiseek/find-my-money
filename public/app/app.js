@@ -10,7 +10,7 @@ angular.module('myApp', [
   'google-maps',
   'btford.socket-io'
 ]).
-config(function ($routeProvider, $locationProvider) {
+config(function ($routeProvider, $httpProvider, $locationProvider) {
   $routeProvider.
     when('/banks', {
       templateUrl: '/expose/banks/index',
@@ -43,6 +43,6 @@ config(function ($routeProvider, $locationProvider) {
     otherwise({
       redirectTo: '/map'
     });
-
+  delete $httpProvider.defaults.headers.common['X-Requested-With'];
   $locationProvider.html5Mode(true);
 });

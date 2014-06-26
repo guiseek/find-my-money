@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  div.page-container
+  div.page-container(ng-init="checkGL")
     div.navbar.navbar-default.navbar-fixed-top(role='navigation')
       div.container
         div.navbar-header
@@ -19,7 +19,19 @@ block content
             li(ng-class="{active:active('/map')}")
               a(href='map') Mapa
 
-    div(ng-view)        
+    div(ng-view)
+
+  div.modal.fade#modal-alert
+    div.modal-dialog
+      div.modal-content
+        div.modal-header
+          button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+          h4.modal-title {{ modal.header }}
+        div.modal-body
+          {{ modal.message }}
+        div.modal-footer
+          button.btn.btn-default(type='button', data-dismiss='modal') Cancelar
+
 
   script(src='/bower_components/jquery/dist/jquery.min.js')
   script(src='/bower_components/bootstrap/dist/js/bootstrap.min.js')

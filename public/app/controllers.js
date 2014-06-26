@@ -3,17 +3,31 @@
 /* Controllers */
 
 angular.module('myApp.controllers', []).
-  controller('AppCtrl', function ($scope, $http, $location) {
+  controller('AppCtrl', function ($rootScope, $scope, $http, $location) {
 
     $scope.active = function(route) {
       return route === $location.path();
     }
 
+    $rootScope.$on('handleEmitCenter', function(event, coords) {
+      $rootScope.$broadcast('handleBroadcastCenter', coords);
+    });
+    $rootScope.$on('handleEmitModal', function(event, args) {
+      var event = event.name.replace('Emit','Broadcast');
+      $scope.modal = args;
+      $('#modal-alert').modal('show');
+      $rootScope.$broadcast(event, args);
+    });
+
     $scope.geolocation = function(success, error) {
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
           function(position) {
-            success(position);
+            var coords = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            };
+            success(coords);
           },
           function(e) {
             var message;
@@ -23,25 +37,36 @@ angular.module('myApp.controllers', []).
               case 3: message = 'Tempo expirado'; break;
               default: message = 'Erro desconhecido';
             }
-            error(message);
+            var args = {
+              type: 'danger',
+              header: 'Localização',
+              message: message
+            };
+            error(args);
           }
         );
       }
       else {
-        error('Não disponível');
+        var args = {
+          type: 'danger',
+          header: 'Localização',
+          message: 'Não disponível'
+        };
+        error(args);
       }
     }
-    $scope.geolocation(
-      function(position){
-        $scope.glPosition = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-      },
-      function(message){
-        $scope.glError = message;
-      }
-    );
+    $scope.checkGL = function() {
+      $scope.geolocation(
+        function(coords) {
+          $scope.$emit('handleEmitCenter', coords);
+        },
+        function(error) {
+          $scope.$emit('handleEmitModal', error);
+          //$scope.glError = message;
+        }
+      );
+    }
+    $scope.checkGL();
 
     $http({
       method: 'GET',
@@ -55,8 +80,8 @@ angular.module('myApp.controllers', []).
     });
 
   }).
-  controller('MapController', ['$scope', '$http', '$location', 'Bank', 'socket', 
-    function ($scope, $http, $location, Bank, socket) {
+  controller('MapController', ['$scope', '$http', '$location', 'Bank', 'APIMap', 'socket', '$q', 
+    function ($scope, $http, $location, Bank, APIMap, socket, $q) {
 
     console.log('Map Controller');
 
@@ -68,66 +93,40 @@ angular.module('myApp.controllers', []).
       {name: 'Safra'}
     ];
 
-    angular.extend($scope, {
-      map: {
-        center: {
-          latitude: 0,
-          longitude: 0
-        },
-        zoom: 16,
-        clickedMarker: {},
-        events: {
-          click: function (mapModel, eventName, originalEventArgs) {
-            if ($scope.glError) {
-              $('#glError').modal('show');
-            }
-            else {
-              var e = originalEventArgs[0];
-              var marker = {
-                latitude: e.latLng.lat(),
-                longitude: e.latLng.lng()
-              }
-              $scope.map.clickedMarker = marker;
-              $scope.$apply();
-              $('#myModal').modal('show');
-              $('#myModal').on('hidden.bs.modal', function (e) {
-                $scope.map.clickedMarker = null;
-                $scope.$apply();
-              });
-            }
+    $scope.map = {
+      center: {
+        latitude: 0,
+        longitude: 0
+      },
+      zoom: 16,
+      clickedMarker: {},
+      events: {
+        click: function (mapModel, eventName, originalEventArgs) {
+          var e = originalEventArgs[0];
+          var coords = {
+            latitude: e.latLng.lat(),
+            longitude: e.latLng.lng()
           }
+          $scope.$emit('handleEmitMarker', coords);
         }
       }
-    });
+    };
 
 		// Banks
-		//var banks = Bank.query();
-    var url = '/api/banks/';
-    $http({
-    	method: 'GET',
-    	url: url
-    }).
-    success(function(data) {
-    	console.log('SUCESSO', data);
-    	$scope.banks = data;
+    $scope.banks = Bank.query({}, function(banks) {
       $scope.map.markers = [];
-      data.forEach(function(bank) {
-        $scope.map.markers.push(
-          {
-            id: bank._id,
-            icon: '/icon/bb.png',
-            address: bank.address,
-            cashMachine: bank.cashMachine,
-            coords: {
-              latitude: bank.lat,
-              longitude: bank.lng
-            },
+      _.each(banks, function(bank) {
+        $scope.map.markers.push({
+          id: bank._id,
+          icon: '/icon/bb.png',
+          address: bank.address,
+          cashMachine: bank.cashMachine,
+          coords: {
+            latitude: bank.lat,
+            longitude: bank.lng
           }
-        );
+        });
       });
-    }).
-    error(function(data) {
-    	console.log('ERRO', data);
     });
 
     google.maps.visualRefresh = true;
@@ -136,26 +135,38 @@ angular.module('myApp.controllers', []).
       $scope.$apply();
     };
 
-		// Functions
-		$scope.center = function(center) {
-			console.log(center);
-			$scope.map.center = center;
-		}
-    $scope.getLocation = function() {
-    	if (navigator.geolocation) {
-    		navigator.geolocation.getCurrentPosition(function(gp) {
-    			var lat = gp.coords.latitude;
-    			var lng = gp.coords.longitude;
-          $scope.center({latitude: lat, longitude: lng});
-    		});
-    	}
+		// Actions
+    $scope.create = function(form) {
+      // OK, but not in use
+      /*
+      APIMap.query({latlng: $scope.coords.latitude+','+$scope.coords.longitude}, function (results) {
+        console.log(results);
+      });
+      */
+      form.name = form.name.name;
+      Bank.save(form);
     }
-    $scope.getLocation();
-    $scope.setLocation = function() {
-    	$scope.center($scope.latlng)
+    $scope.setCenter = function(coords) {
+      $scope.map.center = coords;
     }
 
     // events
+    $scope.$on('handleBroadcastCenter', function (event, coords) {
+      $scope.map.center = coords;
+    });
+    $scope.$on('handleEmitMarker', function (event, coords) {
+      $scope.coords = coords;
+      $scope.map.clickedMarker = coords;
+      $scope.form = {};
+      $scope.form.lat = coords.latitude;
+      $scope.form.lng = coords.longitude;
+      $scope.$apply();
+      $('#modal-marker').modal('show');
+      $('#modal-marker').on('hidden.bs.modal', function (e) {
+        $scope.map.clickedMarker = null;
+        $scope.$apply();
+      });
+    });
     socket.on('post bank', function (data) {
       console.log(data);
       $scope.banks.push(data.bank);
